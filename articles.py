@@ -1,11 +1,8 @@
 import streamlit as st
 import openai
-import os
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-openai.api_key = os.getenv('OPENAI_API_KEY')
+# Set the OpenAI API key from Streamlit secrets
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Define the app colors
 BG_COLOR = "#003b5d"  # Dark blue background
@@ -69,10 +66,10 @@ if st.button('Generate Article'):
             ]
 
             # Generate the article using OpenAI
-            response = openai.ChatCompletion.create(
+            response = openai.Chat.create(  # Correct method
                 model="gpt-4",
                 messages=conversation_history,
-                max_tokens=800,  # Adjust token limit as needed
+                max_tokens=800,
                 temperature=0.7
             )
 
