@@ -1,9 +1,11 @@
 import streamlit as st
-from openai import OpenAI
+import openai
+import os
+from dotenv import load_dotenv
 
-client = OpenAI(api_key='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')  # Correct import for OpenAI
-
-# Set up OpenAI client with API key
+# Load environment variables
+load_dotenv()
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # Define the app colors
 BG_COLOR = "#003b5d"  # Dark blue background
@@ -53,20 +55,12 @@ article_template = st.text_area("Article Template", value="Insert a base article
 # Input for game notes (required)
 game_notes = st.text_area("Game Notes", "Insert your game notes here.", height=200)
 
-# State variable to manage loading state
-if 'loading' not in st.session_state:
-    st.session_state.loading = False
-
 # Generate Article button
 if st.button('Generate Article'):
     if not game_notes.strip():
         st.warning("Please enter game notes to generate the article.")
     else:
-        # Set loading state to True
-        st.session_state.loading = True
-
-        # Show loading message
-        with st.spinner('Generating article...'):
+        with st.spinner("Generating article..."):
             # OpenAI prompt
             conversation_history = [
                 {"role": "system", "content": "You are a professional sports article writer."},
@@ -75,16 +69,15 @@ if st.button('Generate Article'):
             ]
 
             # Generate the article using OpenAI
-            response = client.chat.completions.create(model="gpt-4",
-            messages=conversation_history,
-            max_tokens=800,  # Adjust token limit as needed
-            temperature=0.7)
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=conversation_history,
+                max_tokens=800,  # Adjust token limit as needed
+                temperature=0.7
+            )
 
             # Extract the generated article
-            article_text = response.choices[0].message.content.strip()
-
-            # Reset loading state
-            st.session_state.loading = False
+            article_text = response['choices'][0]['message']['content'].strip()
 
             # Display the generated article in the app
             st.subheader("Generated Article")
