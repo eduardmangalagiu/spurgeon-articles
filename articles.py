@@ -1,28 +1,11 @@
 import subprocess
 import sys
 import streamlit as st
+from openai import OpenAI  # Import OpenAI client
 
-# Function to upgrade the OpenAI package (if needed)
-def upgrade_openai_package():
-    try:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'openai'])
-        st.success("OpenAI package upgraded successfully!")
-    except PermissionError:
-        st.error("Permission denied: Cannot upgrade the OpenAI package. Please upgrade manually.")
-    except Exception as e:
-        st.error(f"An error occurred while upgrading the OpenAI package: {e}")
-
-# Uncomment the following line if you want to run the upgrade command every time the app starts
-# upgrade_openai_package()
-
-# Import OpenAI library
-import openai
-
-# Display the OpenAI version for debugging
-st.write("OpenAI version:", openai.__version__)
-
-# Set the OpenAI API key
+# Set the OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(api_key=openai.api_key)  # Create an instance of OpenAI client
 
 # Define the app colors
 BG_COLOR = "#003b5d"  # Dark blue background
@@ -87,10 +70,10 @@ if st.button('Generate Article'):
 
             # Generate the article using OpenAI
             try:
-                response = openai.ChatCompletion.create(
+                response = client.chat.completions.create(
                     model="gpt-4",
                     messages=conversation_history,
-                    max_tokens=800,
+                    max_tokens=1000,  # Adjust token limit as needed
                     temperature=0.7
                 )
 
@@ -108,7 +91,5 @@ if st.button('Generate Article'):
                     file_name='spurgeon_article.txt',
                     mime='text/plain'
                 )
-            except AttributeError as e:
-                st.error(f"An error occurred with the OpenAI API: {str(e)}")
             except Exception as e:
-                st.error(f"An error occurred while generating the article: {str(e)}")
+                st.error(f"An error occurred with the OpenAI API: {e}")
