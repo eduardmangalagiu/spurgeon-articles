@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import streamlit as st
+import openai
 from openai import OpenAI  # Import OpenAI client
 
 # Set the OpenAI API key from Streamlit secrets
