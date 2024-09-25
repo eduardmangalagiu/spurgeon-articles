@@ -1,96 +1,37 @@
-import subprocess
-import sys
-import streamlit as st
 import openai
-from openai import OpenAI  # Import OpenAI client
+import streamlit as st
 
 # Set the OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
-client = OpenAI(api_key=openai.api_key)  # Create an instance of OpenAI client
 
-# Define the app colors
-BG_COLOR = "#003b5d"  # Dark blue background
-TEXT_COLOR = "#b78c2e"  # Golden text
-FONT = 'Futura'  # Use Futura font for a professional look
+# Define the conversation history
+conversation_history = [
+    {"role": "system", "content": "You are a professional sports article writer."},
+    {"role": "user", "content": "Write an article in the same format, style, and vibe as the following text:\n\n{article_template}. The article will be based on the following game notes:\n{game_notes}. The article should only be about and get information from the notes. Be creative and make sure you follow the format."},
+    {"role": "user", "content": "Now, for Spurgeon College, write a new article based on the following game notes:\n{game_notes}. Make sure you focus more on Spurgeon and make it encouraging even if it's a loss, and hype it up if it's a win for Spurgeon."}
+]
 
-# Set the custom styles
-st.markdown(f"""
-    <style>
-    .stApp {{
-        background-color: {BG_COLOR};
-        font-family: {FONT};
-        color: {TEXT_COLOR};
-    }}
-    .stTextInput, .stTextArea {{
-        border: 2px solid {TEXT_COLOR};
-        background-color: white;
-        color: black;
-        border-radius: 8px;
-        padding: 10px;
-        font-size: 16px;
-    }}
-    .stButton > button {{
-        background-color: {TEXT_COLOR};
-        color: {BG_COLOR};
-        border-radius: 8px;
-        font-size: 16px;
-    }}
-    .stButton > button:hover {{
-        background-color: {BG_COLOR};
-        color: {TEXT_COLOR};
-        border: 2px solid {TEXT_COLOR};
-    }}
-    </style>
-""", unsafe_allow_html=True)
+# Function to generate article using OpenAI API
+def generate_article(conversation_history):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=conversation_history,
+            max_tokens=1000,  # Adjust token limit as needed
+            temperature=0.7
+        )
 
-# Title for the app
-st.title("Spurgeon Articles")
+        # Correct way to access the content
+        article_text = response.choices[0].message['content'].strip()
 
-# Instructions
-st.subheader("Enter the Game Notes Below:")
-st.write("Write your game notes in the text box and click **Generate Article** to create a professional sports article in Spurgeon College style.")
+        return article_text
 
-# Input for the base article format (optional)
-article_template = st.text_area("Article Template", value="Insert a base article format or leave blank for general style.", height=150)
+    except Exception as e:
+        st.error(f"An error occurred with the OpenAI API: {e}")
+        return None
 
-# Input for game notes (required)
-game_notes = st.text_area("Game Notes", "Insert your game notes here.", height=200)
+# Example call
+article_text = generate_article(conversation_history)
 
-# Generate Article button
-if st.button('Generate Article'):
-    if not game_notes.strip():
-        st.warning("Please enter game notes to generate the article.")
-    else:
-        with st.spinner("Generating article..."):
-            # OpenAI prompt
-            conversation_history = [
-                {"role": "system", "content": "You are a professional sports article writer."},
-                {"role": "user", "content": f"Write an article in the same format, style, and vibe as the following text:\n\n{article_template}. The article will be based on the following game notes:\n{game_notes}. The article should only be about and get information from the notes. Be creative and make sure you follow the format."},
-                {"role": "user", "content": f"Now, for Spurgeon College, write a new article based on the following game notes:\n{game_notes}. Make sure you focus more on Spurgeon and make it encouraging even if it's a loss, and hype it up if it's a win for Spurgeon."}
-            ]
-
-            # Generate the article using OpenAI
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=conversation_history,
-                    max_tokens=1000,  # Adjust token limit as needed
-                    temperature=0.7
-                )
-
-                # Extract the generated article
-                article_text = response['choices'][0]['message']['content'].strip()
-
-                # Display the generated article in the app
-                st.subheader("Generated Article")
-                st.write(article_text)
-
-                # Option to download the article
-                st.download_button(
-                    label="Download Article as Text File",
-                    data=article_text,
-                    file_name='spurgeon_article.txt',
-                    mime='text/plain'
-                )
-            except Exception as e:
-                st.error(f"An error occurred with the OpenAI API: {e}")
+if article_text:
+    st.write(article_text)
