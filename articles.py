@@ -1,9 +1,25 @@
 import streamlit as st
-import openai
-import os
-from dotenv import load_dotenv
+import subprocess
+import sys
 
-# Load environment variables
+# Function to upgrade the OpenAI package
+def upgrade_openai_package():
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'openai'])
+        st.success("OpenAI package upgraded successfully!")
+    except Exception as e:
+        st.error(f"An error occurred while upgrading the OpenAI package: {e}")
+
+# Upgrade the OpenAI package at the start of the app
+upgrade_openai_package()
+
+# Now import openai
+try:
+    import openai
+except ImportError:
+    st.warning("The OpenAI library is not installed. Please install it by running `pip install openai` in your terminal.")
+
+# Continue with the rest of your Streamlit app
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Define the app colors
