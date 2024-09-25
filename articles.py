@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = st.secrets["OPENAI_API_KEY"]
 
 # Define the app colors
 BG_COLOR = "#003b5d"  # Dark blue background
