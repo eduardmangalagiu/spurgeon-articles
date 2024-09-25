@@ -1,6 +1,9 @@
 import streamlit as st
 import openai
+import os
+from dotenv import load_dotenv
 
+# Load environment variables
 # Set the OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -66,7 +69,7 @@ if st.button('Generate Article'):
             ]
 
             # Generate the article using OpenAI
-            response = openai.Chat.create(  # Correct method
+            response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=conversation_history,
                 max_tokens=800,
