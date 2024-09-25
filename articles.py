@@ -1,6 +1,20 @@
 import subprocess
 import sys
 import streamlit as st
+
+# Function to upgrade the OpenAI package (if needed)
+def upgrade_openai_package():
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'openai'])
+        st.success("OpenAI package upgraded successfully!")
+    except PermissionError:
+        st.error("Permission denied: Cannot upgrade the OpenAI package. Please upgrade manually.")
+    except Exception as e:
+        st.error(f"An error occurred while upgrading the OpenAI package: {e}")
+
+# Uncomment the following line if you want to run the upgrade command every time the app starts
+# upgrade_openai_package()
+
 import openai
 
 # Set the OpenAI API key
@@ -68,24 +82,29 @@ if st.button('Generate Article'):
             ]
 
             # Generate the article using OpenAI
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=conversation_history,
-                max_tokens=800,
-                temperature=0.7
-            )
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-4",
+                    messages=conversation_history,
+                    max_tokens=800,
+                    temperature=0.7
+                )
 
-            # Extract the generated article
-            article_text = response['choices'][0]['message']['content'].strip()
+                # Extract the generated article
+                article_text = response['choices'][0]['message']['content'].strip()
 
-            # Display the generated article in the app
-            st.subheader("Generated Article")
-            st.write(article_text)
+                # Display the generated article in the app
+                st.subheader("Generated Article")
+                st.write(article_text)
 
-            # Option to download the article
-            st.download_button(
-                label="Download Article as Text File",
-                data=article_text,
-                file_name='spurgeon_article.txt',
-                mime='text/plain'
-            )
+                # Option to download the article
+                st.download_button(
+                    label="Download Article as Text File",
+                    data=article_text,
+                    file_name='spurgeon_article.txt',
+                    mime='text/plain'
+                )
+            except AttributeError as e:
+                st.error(f"An error occurred with the OpenAI API: {str(e)}")
+            except Exception as e:
+                st.error(f"An error occurred while generating the article: {str(e)}")
