@@ -1,25 +1,24 @@
-import streamlit as st
 import subprocess
 import sys
+import streamlit as st
 
 # Function to upgrade the OpenAI package
 def upgrade_openai_package():
     try:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'openai'])
         st.success("OpenAI package upgraded successfully!")
+    except PermissionError:
+        st.error("Permission denied: Cannot upgrade the OpenAI package. Please upgrade manually.")
     except Exception as e:
         st.error(f"An error occurred while upgrading the OpenAI package: {e}")
 
-# Upgrade the OpenAI package at the start of the app
+# Run the upgrade command when the app starts
 upgrade_openai_package()
 
-# Now import openai
-try:
-    import openai
-except ImportError:
-    st.warning("The OpenAI library is not installed. Please install it by running `pip install openai` in your terminal.")
+# Import OpenAI after upgrade
+import openai
 
-# Continue with the rest of your Streamlit app
+# Set the OpenAI API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Define the app colors
