@@ -15,7 +15,11 @@ def upgrade_openai_package():
 # Uncomment the following line if you want to run the upgrade command every time the app starts
 # upgrade_openai_package()
 
+# Import OpenAI library
 import openai
+
+# Display the OpenAI version for debugging
+st.write("OpenAI version:", openai.__version__)
 
 # Set the OpenAI API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
