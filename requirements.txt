@@ -1,3 +1,6 @@
 streamlit
 openai==1.42.0
 python-dotenv
+pkg_resources                                                    
+subprocess                                                       
+sys  
