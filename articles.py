@@ -1,25 +1,11 @@
 import streamlit as st
-import openai  # Correct import for OpenAI
-import pkg_resources
-import subprocess
-import sys
+import openai
+import os
+from dotenv import load_dotenv
 
-# Check the current version of openai
-try:
-    openai_version = pkg_resources.get_distribution("openai").version
-    if openai_version.startswith("0."):
-        st.error("Your OpenAI library version is outdated. Please migrate to version 1.0.0 or higher.")
-        st.write("You can run the following command in your terminal to migrate your code:")
-        st.code("openai migrate")
-        st.write("Or, to update the library, run:")
-        st.code("pip install --upgrade openai")
-        sys.exit(1)
-except pkg_resources.DistributionNotFound:
-    st.error("OpenAI library not found. Installing...")
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'openai'])
-
-# Set up OpenAI client with API key
-openai.api_key = st.secrets["openai_api_key"]  # Retrieve from Streamlit secrets
+# Load environment variables
+load_dotenv()
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # Define the app colors
 BG_COLOR = "#003b5d"  # Dark blue background
@@ -74,8 +60,7 @@ if st.button('Generate Article'):
     if not game_notes.strip():
         st.warning("Please enter game notes to generate the article.")
     else:
-        # Loading text
-        with st.spinner('Generating article...'):
+        with st.spinner("Generating article..."):
             # OpenAI prompt
             conversation_history = [
                 {"role": "system", "content": "You are a professional sports article writer."},
@@ -92,7 +77,7 @@ if st.button('Generate Article'):
             )
 
             # Extract the generated article
-            article_text = response.choices[0].message['content'].strip()
+            article_text = response['choices'][0]['message']['content'].strip()
 
             # Display the generated article in the app
             st.subheader("Generated Article")
