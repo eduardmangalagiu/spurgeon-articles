@@ -3,8 +3,8 @@ import openai
 import os
 from dotenv import load_dotenv
 
+# Load environment variables
 openai.api_key = st.secrets["OPENAI_API_KEY"]
-client = st.secrets["OPENAI_API_KEY"]
 
 # Define the app colors
 BG_COLOR = "#003b5d"  # Dark blue background
@@ -68,7 +68,7 @@ if st.button('Generate Article'):
             ]
 
             # Generate the article using OpenAI
-            response = client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=conversation_history,
                 max_tokens=800,
