@@ -68,7 +68,7 @@ if st.button('Generate Article'):
             ]
 
             # Generate the article using OpenAI
-            response = openai.Chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=conversation_history,
                 max_tokens=800,
